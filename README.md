@@ -1,2 +1,2 @@
-# Programming1
-(Fall 2017) 《Programming1》 Materials in School of Computer Science &amp; Engineering, Soongsil University
+# Programming1 and Practice
+A project for Programming1 and Practice, Computer Science &amp; Engineering, Soongsil University

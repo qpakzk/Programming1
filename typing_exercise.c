@@ -9,6 +9,7 @@ int main(void) {
 	
 	end = false;	
 	while(!end) {
+		system("clear");
 		printf(">> 영문 타자 연습 프로그램 <<\n");
 		printf("1. 자리 연습\t");
 		printf("2. 낱말 연습\n");

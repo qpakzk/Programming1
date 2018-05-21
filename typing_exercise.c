@@ -1,11 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
-
-void exercise_alphabet();
-void exercise_word();
-void exercise_short_article();
-void exercise_long_article();
+#include "typing_exercise.h"
 
 int main(void) {
 	int number;
@@ -45,20 +41,4 @@ int main(void) {
 		}
 	}
 	return 0;
-}
-
-void exercise_alphabet() {
-	printf("자리 연습입니다.\n");
-}
-
-void exercise_word() {
-	printf("낱말 연습입니다.\n");
-}
-
-void exercise_short_article() {
-	printf("짧은 글 연습입니다.\n");
-}
-
-void exercise_long_article() {
-	printf("긴 글 연습입니다.\n");
 }

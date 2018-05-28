@@ -3,8 +3,12 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <termios.h>
+#include <time.h>
+#include <string.h>
 
 #define NO 5
+#define SEN 30
+#define MAX_BUF 100000
 
 void clear(void);
 void move_cursor(int x, int y);
@@ -71,6 +75,7 @@ int getch(void) {
 void start_msg(int no) {
 	char *msg[NO] = {"\b\b\b", "자리 연습", "낱말 연습", "짧은 글 연습", "긴 글 연습"};
 	clear();
+	move_cursor(0, 0);
 	printf(">> 영문 타자 연습 프로그램 : %s <<\n", msg[no]);
 }
 
@@ -84,6 +89,7 @@ int menu(void) {
 	printf("5. 프로그램 종료\n\n");
 	printf("번호를 선택하세요: ");
 	scanf("%d", &no);
+	getchar();
 	return no;
 }
 
@@ -98,8 +104,81 @@ void exercise_word(void) {
 }
 
 void exercise_short(void) {
+	//reference : https://www.fluentu.com/blog/english/ko/%EC%A7%80%EA%B8%88-%EB%B0%94%EB%A1%9C-%EB%B0%B0%EC%9B%8C%EC%95%BC-%ED%95%A0-%EA%B0%80%EC%9E%A5-%EC%9C%A0%EC%9A%A9%ED%95%9C-%EC%98%81%EC%96%B4-%EC%86%8D%EB%8B%B4-50-%EA%B0%80%EC%A7%80/
+	char *sentence[SEN] = {
+		"The grass is always greener on the other side of the fence.",//0
+		"Don't judge a book by its cover.",//1
+		"Strike while the iron is hot.",//2
+		"Too many cooks spoil the broth.",//3
+		"You can't have your cake and eat it too.",//4
+		"Many hands make light work.",//5
+		"When in Rome, do as the Romans do.",//6
+		"Don't cross the bridge until you come to it.",//7
+		"Honesty is the best policy.",//8
+		"Practice makes perfect.",//9
+		"Where there's a will, there's a way.",//10
+		"Look before you leap.",//11
+		"Beggars can't be choosers.",//12
+		"Don't make a mountain out of an anthill.",//13
+		"An apple a day keeps the doctor away.",//14
+		"The early bird catches the worm.",//15
+		"Better late than never.",//16
+		"The cat is out of the bag.",//17
+		"Two wrongs don't make a right.",//18
+		"Always put your best foot forward.",//19
+		"Rome wasn't built in a day.",//20
+		"It's better to be safe than sorry.",//21
+		"Don't bite the hand that feeds you.",//22
+		"The squeaky wheel gets the grease.",//23
+		"Don't bite off more than you can chew.",//24
+		"You made your bed, now you have to lie in it.",//25
+		"Actions speak louder than words.",//26
+		"It takes two to tango.",//27
+		"Don't count your chickens before they hatch.",//28
+		"It's no use crying over spilled milk."//29
+	};
+	int no;
+	int round = 5;
+	int progress = 0, current_speed = 0, max_speed = 0, accuracy = 100;
+	int input;
+	char input_buf[MAX_BUF];
+	int idx = 0, i;
+
+	memset(input_buf, 0x00, MAX_BUF);
+	srand(time(NULL));
+
+	while(round--) {
+		no = random() % SEN;
+		while(1) {
+			start_msg(3);
+			move_cursor(0, 2);
+			printf("진행도 : %3d%%\t현재타수 : %3d\t최고타수 : %3d\t정확도 : %d%%\n", progress, current_speed, max_speed, accuracy);
+			move_cursor(0, 5);
+			printf("%s\n", sentence[no]);
+			move_cursor(idx, 7);
+			input = getch();
+			input_buf[idx++] = input;
+			
+			move_cursor(0, 7);
+			input_buf[idx] = 0;
+			printf("%s", input_buf);
+
+			if(input == '\n') {
+				progress += 20;
+				memset(input_buf, 0x00, MAX_BUF);
+				idx = 0;
+				break;
+			}
+		}	
+	}
+	
 	start_msg(3);
+	move_cursor(0, 2);
+	printf("진행도 : %3d%%\t현재타수 : %3d\t최고타수 : %3d\t정확도 : %d%%\n", progress, current_speed, max_speed, accuracy);
+	move_cursor(0, 5);
+
 	sleep(1);
+
 }
 
 void exercise_long(void) {

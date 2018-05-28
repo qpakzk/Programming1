@@ -40,7 +40,7 @@ int main(void) {
 		cursor(i + 3, 2);
 		ch = getch(); 
 		buf[i++] = ch;	
-		cursor(3, 2);
+		cursor(4, 2);
 		for(j = 0; j < i; j++)
 			printf("%c", buf[j]);
 		if(ch == '\n')

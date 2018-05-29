@@ -10,12 +10,19 @@
 #define SEN 30
 #define MAX_BUF 100000
 
+#define ESC 0x1B
+#define DEL 0x7F
+#define NL 0x0A
+
 void clear(void);
 void move_cursor(int x, int y);
 void start_msg(int no);
 int getch(void);
 
 int menu(void);
+int cal_accuracy(char *str1, char *str2, int last);
+int cal_speed(char *input, char *sen, int last, clock_t start_clock, clock_t current_clock);
+
 void exercise_pos(void);
 void exercise_word(void);
 void exercise_short(void);
@@ -103,6 +110,30 @@ void exercise_word(void) {
 	sleep(1);
 }
 
+int cal_accuracy(char *input, char *sen, int last) {
+	int correct_count = 0;
+	int len = strlen(sen);
+	int result;
+	int i;
+
+	for(i = 0; i < last;  i++) {
+		if(input[i] == sen[i])
+			correct_count++;
+	}
+
+	result = last <= len ? correct_count * 100 / last : correct_count * 100 / len;
+	return result;
+}
+/*
+int cal_speed(char *input, char *sen, int last, clock_t start_clock, clock_t current_clock) {
+	int seconds = (current_clock - start_clock) / CLOCKS_PER_SEC;
+	int speed = 0;
+	if(seconds != 0) 
+		speed = last * 60 / seconds; //need to modify
+	return speed;	
+}
+*/
+
 void exercise_short(void) {
 	//reference : https://www.fluentu.com/blog/english/ko/%EC%A7%80%EA%B8%88-%EB%B0%94%EB%A1%9C-%EB%B0%B0%EC%9B%8C%EC%95%BC-%ED%95%A0-%EA%B0%80%EC%9E%A5-%EC%9C%A0%EC%9A%A9%ED%95%9C-%EC%98%81%EC%96%B4-%EC%86%8D%EB%8B%B4-50-%EA%B0%80%EC%A7%80/
 	char *sentence[SEN] = {
@@ -139,10 +170,12 @@ void exercise_short(void) {
 	};
 	int no;
 	int round = 5;
-	int progress = 0, current_speed = 0, max_speed = 0, accuracy = 100;
+	int progress = 0, current_speed = 0, max_speed = 0, accuracy = 0;
 	int input;
 	char input_buf[MAX_BUF];
 	int idx = 0, i;
+	int sen_len;
+	clock_t start_clock, current_clock;
 
 	memset(input_buf, 0x00, MAX_BUF);
 	srand(time(NULL));
@@ -155,30 +188,50 @@ void exercise_short(void) {
 			printf("진행도 : %3d%%\t현재타수 : %3d\t최고타수 : %3d\t정확도 : %d%%\n", progress, current_speed, max_speed, accuracy);
 			move_cursor(0, 5);
 			printf("%s\n", sentence[no]);
+			sen_len = strlen(sentence[no]);
+
 			move_cursor(idx, 7);
 			input = getch();
-			input_buf[idx++] = input;
+			if(input == ESC) 
+				return;
+			else if(input == DEL) {
+				if(idx == 0)
+					continue;
+				idx--;
+				accuracy = cal_accuracy(input_buf, sentence[no], idx);
+			}
+			else if(input == NL) {
+				progress += 20;
+				memset(input_buf, 0x00, MAX_BUF);
+				idx = 0;
+				current_speed = 0;
+				accuracy = 0;
+				break;
+			}
+			else {
+				if(idx == 0)
+					start_clock = current_clock = clock();
+				else
+					current_clock = clock();
+
+				input_buf[idx++] = input;
+				accuracy = cal_accuracy(input_buf, sentence[no], idx);
+				//current_speed = cal_speed(input_buf, sentence[no], idx, start_clock, current_clock);
+				//max_speed = max_speed < current_speed ? current_speed : max_speed;
+			}
 			
 			move_cursor(0, 7);
 			input_buf[idx] = 0;
 			printf("%s", input_buf);
-
-			if(input == '\n') {
-				progress += 20;
-				memset(input_buf, 0x00, MAX_BUF);
-				idx = 0;
-				break;
-			}
 		}	
 	}
-	
+
 	start_msg(3);
 	move_cursor(0, 2);
 	printf("진행도 : %3d%%\t현재타수 : %3d\t최고타수 : %3d\t정확도 : %d%%\n", progress, current_speed, max_speed, accuracy);
 	move_cursor(0, 5);
 
-	sleep(1);
-
+	while(getch() != ESC);
 }
 
 void exercise_long(void) {

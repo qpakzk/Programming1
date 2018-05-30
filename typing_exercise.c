@@ -8,9 +8,9 @@
 
 #define NO 5
 #define WORD_SIZE 100
-#define SEN 30
-#define ARTICLE 4
-#define MAX_BUF 100000
+#define SHORT_SIZE 30
+#define LONG_SIZE 4
+#define MAX_SIZE 100000
 
 #define ESC 0x1B
 #define DEL 0x7F
@@ -138,7 +138,7 @@ void exercise_word(void) {
 	int match = 0;
 	int progress = 0, typos = 0, accuracy = 0;
 	int input;
-	char input_buf[MAX_BUF];
+	char input_buf[MAX_SIZE];
 	int idx = 0, i, j;
 	int selected_word[WORD_ROUND];
 
@@ -154,7 +154,7 @@ void exercise_word(void) {
 		}
 		selected_word[i] = no;
 
-		memset(input_buf, 0x00, MAX_BUF);
+		memset(input_buf, 0x00, MAX_SIZE);
 		
 		start_msg(2);
 		move_cursor(0,2);
@@ -220,7 +220,7 @@ int cal_speed(char *input, char *sen, int last, clock_t start_clock, clock_t cur
 
 void exercise_short(void) {
 	//reference : https://www.fluentu.com/blog/english/ko/%EC%A7%80%EA%B8%88-%EB%B0%94%EB%A1%9C-%EB%B0%B0%EC%9B%8C%EC%95%BC-%ED%95%A0-%EA%B0%80%EC%9E%A5-%EC%9C%A0%EC%9A%A9%ED%95%9C-%EC%98%81%EC%96%B4-%EC%86%8D%EB%8B%B4-50-%EA%B0%80%EC%A7%80/
-	char *sentence[SEN] = {
+	char *sentence[SHORT_SIZE] = {
 		"The grass is always greener on the other side of the fence.",//0
 		"Don't judge a book by its cover.",//1
 		"Strike while the iron is hot.",//2
@@ -256,16 +256,16 @@ void exercise_short(void) {
 	int round = 5;
 	int progress = 0, current_speed = 0, max_speed = 0, accuracy = 0;
 	int input;
-	char input_buf[MAX_BUF];
+	char input_buf[MAX_SIZE];
 	int idx = 0, i;
 	int sen_len;
 	clock_t start_clock, current_clock;
 
-	memset(input_buf, 0x00, MAX_BUF);
+	memset(input_buf, 0x00, MAX_SIZE);
 	srand(time(NULL));
 
 	while(round--) {
-		no = random() % SEN;
+		no = random() % SHORT_SIZE;
 		while(1) {
 			start_msg(3);
 			move_cursor(0, 2);
@@ -286,7 +286,7 @@ void exercise_short(void) {
 			}
 			else if(input == NL) {
 				progress += 20;
-				memset(input_buf, 0x00, MAX_BUF);
+				memset(input_buf, 0x00, MAX_SIZE);
 				idx = 0;
 				current_speed = 0;
 				accuracy = 0;
@@ -320,7 +320,7 @@ void exercise_short(void) {
 
 void exercise_long(void) {
 	start_msg(4);
-	char *articles[ARTICLE] = {
+	char *articles[LONG_SIZE] = {
 		
 	};
 	

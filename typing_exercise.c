@@ -141,16 +141,23 @@ void exercise_word(void) {
 	char input_buf[MAX_SIZE];
 	int idx = 0, i, j;
 	int selected_word[WORD_ROUND];
-
+	bool duplicate;
 	srand(time(NULL));
 
 	for(i = 0; i < WORD_ROUND; i++) {
-		no = random() % WORD_SIZE;
-		for(j = 0; j < i; j++) {
-			if(selected_word[j] == no) {
-				i--;
-				continue;
+		duplicate = false;
+		while(1) {
+			no = random() % WORD_SIZE;
+			for(j = 0; j < i; j++) {
+				if(selected_word[j] == no) {
+					duplicate = true;
+					break;
+				}
+				else
+					duplicate = false;
 			}
+			if(!duplicate)
+				break;
 		}
 		selected_word[i] = no;
 
@@ -190,8 +197,8 @@ void exercise_word(void) {
 		move_cursor(0,2);
 		printf("진행도 : %3d%%\t오타수 : %3d\t 정확도 : %3d%%\n", progress, typos, accuracy);
 		move_cursor(0,7);
-		while(getch() != '\n');
 	}
+	while(getch() != '\n');
 }
 
 int cal_accuracy(char *input, char *sen, int last) {

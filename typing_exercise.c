@@ -7,12 +7,16 @@
 #include <string.h>
 
 #define NO 5
+#define WORD_SIZE 100
 #define SEN 30
+#define ARTICLE 4
 #define MAX_BUF 100000
 
 #define ESC 0x1B
 #define DEL 0x7F
 #define NL 0x0A
+
+#define WORD_ROUND 20
 
 void clear(void);
 void move_cursor(int x, int y);
@@ -107,7 +111,87 @@ void exercise_pos(void) {
 
 void exercise_word(void) {
 	start_msg(2);
-	sleep(1);
+
+	char *word[WORD_SIZE] = {
+		"appointment", "communication", "doubt", "remind", "phenomenon", 
+		"meanwhile", "import", "interacrion", "likewise", "logger",
+		"munufacture", "maximize", "diminish", "renew", "physical", 
+		"content", "extend", "ingredient", "gaze", "regular", 
+		"minimize", "content", "transform", "intend", "expend",
+		"official", "special", "combine", "reputation", "devote", 
+		"gradual", "therefore", "class", "indeed", "require", 
+		"comprehend", "debate", "announce", "structure", "indicate", 
+		"resist", "exit", "resource", "function", "tough",
+		"postpone", "outcome", "undergo", "preceive", "circular", 
+		"hospital", "outstand", "expose", "enforce", "biography",
+		"concern", "circumstance", "isolation", "analyze", "commute",
+		"solve", "abstraction", "state", "common", "character", 
+		"last", "perhaps", "matter", "privilege", "iron",
+		"vanity", "fatigue", "calamity", "virtue", "impulse",
+		"hyprocrisy", "system", "monotony", "conquest", "insight",
+		"influence", "fortitude", "compromise", "prosperity", "comfort",
+		"symphony", "candidate", "homage", "conceit", "frustration",
+		"impression", "identity", "eloquence","adolescence", "heritage",
+		 "add", "vivid", "simultaneous", "acquaintance", "ready"
+	};
+	int no;
+	int match = 0;
+	int progress = 0, typos = 0, accuracy = 0;
+	int input;
+	char input_buf[MAX_BUF];
+	int idx = 0, i, j;
+	int selected_word[WORD_ROUND];
+
+	srand(time(NULL));
+
+	for(i = 0; i < WORD_ROUND; i++) {
+		no = random() % WORD_SIZE;
+		for(j = 0; j < i; j++) {
+			if(selected_word[j] == no) {
+				i--;
+				continue;
+			}
+		}
+		selected_word[i] = no;
+
+		memset(input_buf, 0x00, MAX_BUF);
+		
+		start_msg(2);
+		move_cursor(0,2);
+		printf("진행도 : %3d%%\t오타수 : %3d\t 정확도 : %d%%\n", progress, typos, accuracy);
+		move_cursor(0, 5);
+		printf("%s", word[no]);
+
+		move_cursor(0,7);
+		while (1) {
+			input = getchar();
+			if(input == '\n') {
+				input_buf[idx] = 0;
+				if(!strcmp("###", input_buf))
+					return;
+				if(strcmp(word[no], input_buf))
+					typos++;
+				else
+					match++;
+
+				accuracy = match * 100 / (typos + match);
+				progress += 5;
+				idx = 0;
+				break;
+			}
+			else
+				input_buf[idx++] = (char) input;
+		}
+		printf("round = %d\n", i);
+	}
+
+	if(i == WORD_ROUND) {
+		start_msg(2);
+		move_cursor(0,2);
+		printf("진행도 : %3d%%\t오타수 : %3d\t 정확도 : %3d%%\n", progress, typos, accuracy);
+		move_cursor(0,7);
+		while(getch() != '\n');
+	}
 }
 
 int cal_accuracy(char *input, char *sen, int last) {
@@ -236,7 +320,11 @@ void exercise_short(void) {
 
 void exercise_long(void) {
 	start_msg(4);
-	sleep(1);
+	char *articles[ARTICLE] = {
+		
+	};
+	
+	while(getch() != ESC);
 }
 
 void end(void) {

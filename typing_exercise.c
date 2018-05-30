@@ -17,6 +17,7 @@
 #define NL 0x0A
 
 #define WORD_ROUND 20
+#define SHORT_ROUND 5
 
 void clear(void);
 void move_cursor(int x, int y);
@@ -260,19 +261,35 @@ void exercise_short(void) {
 		"It's no use crying over spilled milk."//29
 	};
 	int no;
-	int round = 5;
 	int progress = 0, current_speed = 0, max_speed = 0, accuracy = 0;
 	int input;
 	char input_buf[MAX_SIZE];
-	int idx = 0, i;
+	int idx = 0, i, j;
 	int sen_len;
 	clock_t start_clock, current_clock;
-
+	bool duplicate;
+	int selected_short[SHORT_ROUND];
+	int round = SHORT_ROUND;
 	memset(input_buf, 0x00, MAX_SIZE);
 	srand(time(NULL));
 
-	while(round--) {
-		no = random() % SHORT_SIZE;
+	for(i = 0; i < SHORT_ROUND; i++) {
+		duplicate = false;
+		while(1) {
+			no = random() % SHORT_SIZE;
+			for(j = 0; j < i; j++) {
+				if(selected_short[j] == no) {
+					duplicate = true;
+					break;
+				}
+				else
+					duplicate = false;
+			}
+			if(!duplicate)
+				break;
+		}
+		selected_short[i] = no;
+
 		while(1) {
 			start_msg(3);
 			move_cursor(0, 2);

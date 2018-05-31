@@ -19,6 +19,14 @@
 #define WORD_ROUND 20
 #define SHORT_ROUND 5
 
+//긴 글 연습 데이터 저장을 위한 타입 정의
+#define NUM_OF_ROWS 5
+
+typedef struct _Article {
+	char *page1[NUM_OF_ROWS];
+	char *page2[NUM_OF_ROWS];
+} Article;
+
 void clear(void);
 void move_cursor(int x, int y);
 void start_msg(int no);
@@ -408,15 +416,71 @@ void exercise_short(void) {
 }
 
 void exercise_long(void) {
-	char *articles[LONG_SIZE * 2] = {
-		"The Little prince\nOnce when I was six years old I saw a magnificent picture in a book,\ncalled True Stories from Nature, about the primeval forest.\n It was a picture of a boa constrictor in the act of swallowing an animal.\nHere is a copy of the drawing.\n",
-		"In the book it said:\"Boa constrictors swallow their prey whole,\nwithout chewing it. After that they are not able to move,\nand they sleep through the six months that they need for digestion.\"\nI pondered deeply, then, over the adventures of the jungle.\nAnd after some work with a colored pencil I succeeded in making my first drawing.\n",
-		"The elves and the shoemaker\nOnce upon a time, there was a poor shoemaker and his wife.\n\"This is all the leather I have left,\" said the poor shoemaker.\n\"I can make just one pair of shoes.\"\nThat night, the shoemaker cut the leather.\n",
-		"\"I\'ll make these shoes in the morning,\" he said.\nHe left the leather in the shop and went to bed.\nThe next morning, the shoemaker came downstairs.\nTo his surprise, the leather had been made into a pair of beautiful shoes.\nThe shoemaker called his wife.\n",
-		"Rapunzel\nThere once lived a man and his wife, who had long wished for a child,\nbut in vain.  Now there was at the back of their house a little window\nwhich overlooked a beautiful garden full of the finest vegetables and\nflowers; but there was a high wall all round it, and no one ventured\n",
-		"into it, for it belonged to a witch of great might, and of whom all\nthe world was afraid.  One day, when the wife was standing at the win-\ndow, and looking into the garden, she saw a bed filled with the finest\nrampion; and it looked so fresh and green that she began to wish for\nsome; and at length she longed for it greatly.\n",
-		"The Wind and the Sun\nThe North Wind was rushing along and blowing the clouds as he passed.\n\"Who is so strong as I?\" he cried. \n\"I am even stronger than the sun.\"\n\"Can you show that you are stronger?\" asked the Sun.\n",
-		"\"A traveler is coming over the hill\" said the Wind.\n\"Let us see which of us can first make him take off his long cloak. The one who succeeds will prove himself the stronger.\"\nThe North Wind began first.\nHe blew a gale, tore up trees, and raised clouds of dust.\nBut the traveler only wrapped his cloak more closely about him, and kept on his way.\n"
+	Article articles[LONG_SIZE] = {
+		{//0
+			{
+				"The Selfish Giant",
+				"Every afternoon, as they were coming from school, the children used",
+				"to go and play in the Giant\'s garden.",
+				"It was a large lovely garden, with soft green grass. Here and there",
+				"over the grass stook beautiful flowers like stars, and there were",
+			},
+			{
+				"twelve peachtrees that in the springtime broke out into delicate blos-",
+				"soms of pink and pearl, and in the autumn bore rich fruit. The birds",
+				"sat in the trees and sang so sweetly that the children used to stop",
+				"their games in order to listen to them. \"How happy we are here!\" they",
+				"cried to each other.",
+			}
+		},
+		{//1
+			{
+				"The Elves and the Shoemaker",
+				"There was once a shoemaker, who, through no fault of his own, became",
+				"so poor that at last hr had nothing left but just enough leather to",
+				"make one pair of shoes. He cut out the shoes at night, so as to set to",
+				"work upon them next morning; and as he had a good conscience, he laid",
+			},
+			{
+				"himself quietly down in his bed, committed himself to heaven, and fell",
+				"asleep. In the morning, after he had said his prayers, and was going",
+				"to get to work, he found the pair of shoes made and finished, and stan-",
+				"ding on his table. He wae very much astonished, and could not tell",
+				"what to think, and he took the shoes in his hand to examine then more",
+			}
+		},
+		{//2
+			{
+				"Rapunzel",
+				"There once lived a man and his wife, who had long wished for a child,",
+				"but in vain. Now there was at the back of their house a little window",
+				"which overlooked a beautiful garden full of the finest vegetables and",
+				"flowers; but there was a high wall all round it, and no one ventured",
+			},
+			{
+				"into it, for it belonged to a witch of great might, and of whom all",
+				"the world was afraid. One day, when the wife was standing at the win-"
+				"dow, and looking into the garden, she saw a bed filled with the finest",
+				"rampion; and it looked so fresh and green that she began to wish for",
+				"some; and at length she longed for it greatly.",
+			}
+		},
+		{//3
+			{
+				"The Wind and the Sun",
+				"The North Wind was rushing along and blowing the clouds as he passed.",
+				"\"Who is so strong as I?\" he cried.",
+				"\"I am even stronger than the sun.\"",
+				"\"Can you show that you are stronger?\" asked the Sun.",
+			},
+			{
+				"\"A traveler is coming over the hill,\" said the Wind. \"Let us see which",
+				"of us can first make him take off his long cloak.", 
+				"The one who succeeds will prove himself the stronger.\"",
+				"The North Wind began first. He blew a gale, tore up trees, and raised",
+				"clouds of dust.",
+			}
+		}
 	};
 	int no;
 	int accuracy = 100, speed = 0;

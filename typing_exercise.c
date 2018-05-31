@@ -408,14 +408,89 @@ void exercise_short(void) {
 }
 
 void exercise_long(void) {
-	start_msg(4);
-	char *articles[LONG_SIZE] = {
-		"The Little prince\nOnce when I was six years old I saw a magnificent picture in a book,\ncalled True Stories from Nature, about the primeval forest.\n It was a picture of a boa constrictor in the act of swallowing an animal.\nHere is a copy of the drawing.\nIn the book it said:\"Boa constrictors swallow their prey whole,\nwithout chewing it. After that they are not able to move,\nand they sleep through the six months that they need for digestion.\"\nI pondered deeply, then, over the adventures of the jungle.\nAnd after some work with a colored pencil I succeeded in making my first drawing.\n",
-		"The elves and the shoemaker\nOnce upon a time, there was a poor shoemaker and his wife.\n\"This is all the leather I have left,\" said the poor shoemaker.\n\"I can make just one pair of shoes.\"\nThat night, the shoemaker cut the leather.\n\"I\'ll make these shoes in the morning,\" he said.\nHe left the leather in the shop and went to bed.\nThe next morning, the shoemaker came downstairs.\nTo his surprise, the leather had been made into a pair of beautiful shoes.\nThe shoemaker called his wife.\n",
-		"Rapunzel\nThere once lived a man and his wife, who had long wished for a child,\nbut in vain.  Now there was at the back of their house a little window\nwhich overlooked a beautiful garden full of the finest vegetables and\nflowers; but there was a high wall all round it, and no one ventured\ninto it, for it belonged to a witch of great might, and of whom all\nthe world was afraid.  One day, when the wife was standing at the win-\ndow, and looking into the garden, she saw a bed filled with the finest\nrampion; and it looked so fresh and green that she began to wish for\nsome; and at length she longed for it greatly.\n",
-		"The Wind and the Sun\nThe North Wind was rushing along and blowing the clouds as he passed.\n\"Who is so strong as I?\" he cried. \n\"I am even stronger than the sun.\"\n\"Can you show that you are stronger?\" asked the Sun.\n\"A traveler is coming over the hill\" said the Wind.\n\"Let us see which of us can first make him take off his long cloak. The one who succeeds will prove himself the stronger.\"\nThe North Wind began first.\nHe blew a gale, tore up trees, and raised clouds of dust.\nBut the traveler only wrapped his cloak more closely about him, and kept on his way.\n"
+	char *articles[LONG_SIZE * 2] = {
+		"The Little prince\nOnce when I was six years old I saw a magnificent picture in a book,\ncalled True Stories from Nature, about the primeval forest.\n It was a picture of a boa constrictor in the act of swallowing an animal.\nHere is a copy of the drawing.\n",
+		"In the book it said:\"Boa constrictors swallow their prey whole,\nwithout chewing it. After that they are not able to move,\nand they sleep through the six months that they need for digestion.\"\nI pondered deeply, then, over the adventures of the jungle.\nAnd after some work with a colored pencil I succeeded in making my first drawing.\n",
+		"The elves and the shoemaker\nOnce upon a time, there was a poor shoemaker and his wife.\n\"This is all the leather I have left,\" said the poor shoemaker.\n\"I can make just one pair of shoes.\"\nThat night, the shoemaker cut the leather.\n",
+		"\"I\'ll make these shoes in the morning,\" he said.\nHe left the leather in the shop and went to bed.\nThe next morning, the shoemaker came downstairs.\nTo his surprise, the leather had been made into a pair of beautiful shoes.\nThe shoemaker called his wife.\n",
+		"Rapunzel\nThere once lived a man and his wife, who had long wished for a child,\nbut in vain.  Now there was at the back of their house a little window\nwhich overlooked a beautiful garden full of the finest vegetables and\nflowers; but there was a high wall all round it, and no one ventured\n",
+		"into it, for it belonged to a witch of great might, and of whom all\nthe world was afraid.  One day, when the wife was standing at the win-\ndow, and looking into the garden, she saw a bed filled with the finest\nrampion; and it looked so fresh and green that she began to wish for\nsome; and at length she longed for it greatly.\n",
+		"The Wind and the Sun\nThe North Wind was rushing along and blowing the clouds as he passed.\n\"Who is so strong as I?\" he cried. \n\"I am even stronger than the sun.\"\n\"Can you show that you are stronger?\" asked the Sun.\n",
+		"\"A traveler is coming over the hill\" said the Wind.\n\"Let us see which of us can first make him take off his long cloak. The one who succeeds will prove himself the stronger.\"\nThe North Wind began first.\nHe blew a gale, tore up trees, and raised clouds of dust.\nBut the traveler only wrapped his cloak more closely about him, and kept on his way.\n"
 	};
+	int no;
+	int accuracy = 100, speed = 0;
+	int first_page, second_page;
+	int input;
+	char input_buf[MAX_SIZE];
+	int line_count = 0;
+	int idx = 0;
+	int page;
+	bool is_first = true;
+	struct timeval start, end;
+	int x, y;
+
+	srand(time(NULL));
 	
+	no = rand() % LONG_SIZE;
+	first_page = no * 2;
+	second_page = no * 2 + 1;
+
+	memset(input_buf, 0x00, MAX_SIZE);
+	page = first_page;
+	x = 0;
+	y = 12;
+	while(1) {
+		start_msg(4);
+		move_cursor(0, 2);
+		printf("정확도 : %3d%%\t현재타수 : %3d\n", accuracy, speed);
+		
+		move_cursor(0, 5);
+		printf("%s", articles[page]);
+
+		move_cursor(x, y);
+		input = getch();
+		if(input == ESC)
+			return;
+		else if(input == DEL) {
+			if(idx <= 0 || x <= 0) {
+				continue;
+			}
+			idx--;
+			accuracy = cal_accuracy(input_buf, articles[page], idx);
+		}
+		else {
+			if(is_first) {
+				gettimeofday(&start, NULL);
+				is_first = false;
+			}
+			else
+				gettimeofday(&end, NULL);
+			
+			if(input == '\n') {
+				x = 0;
+				y += 2;
+				line_count++;
+			}
+
+			input_buf[idx++] = input;
+			accuracy = cal_accuracy(input_buf, articles[page], idx);
+			speed = cal_speed(input_buf, articles[page], idx, &start, &end);
+		}
+		
+		if(line_count == 5) {
+			memset(input_buf, 0x00, MAX_SIZE);
+			idx = 0;
+			page = second_page;
+		}
+		else if(line_count == 10)
+			break;
+		
+		move_cursor(0, 12);
+		input_buf[idx] = 0;
+		printf("%s", input_buf);
+	}
+
 	while(getch() != ESC);
 }
 

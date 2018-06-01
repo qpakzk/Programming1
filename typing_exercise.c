@@ -11,7 +11,7 @@
 #define WORD_SIZE 100
 #define SHORT_SIZE 30
 #define LONG_SIZE 4
-#define MAX_SIZE 100000
+#define MAX_SIZE 1000000
 
 #define ESC 0x1B
 #define DEL 0x7F
@@ -19,6 +19,7 @@
 #define WORD_ROUND 20
 #define SHORT_ROUND 5
 
+#define NUM_OF_PAGES 2
 //긴 글 연습 데이터 저장을 위한 타입 정의
 #define NUM_OF_ROWS 5
 
@@ -415,8 +416,47 @@ void exercise_short(void) {
 	while(getch() != ESC);
 }
 
+int cal_accuracy_for_long(char input_buf[][MAX_SIZE], Article *article, int page_num, int x_pos, int y_pos) {
+	int i, j;
+	int correct_count = 0;
+	
+	if(page_num == 1) {
+		for(i = 0; i < 5; i++) {
+			for(j = 0; j < strlen(article->page2[i]); j++) {
+				if(input_buf[i][j] == article->page2[i][j])
+					correct_count++;
+			}
+		}
+
+		for(i = 0; i < y_pos; i++) {
+			for(j = 0; j < strlen(article->page1[i]); j++) {
+				if(input_buf[i][j] == article->page1[i][j])
+					correct_count++;
+			}
+		}
+
+		for(i = 0; i < x_pos; i++)
+			if(input_buf[y_pos][i] == article->page1[y_pos][i])
+				correct_count++;
+	}
+	else {
+		for(i = 0; i < y_pos; i++) {
+			for(j = 0; j < strlen(article->page1[i]); j++) {
+				if(input_buf[i][j] == article->page1[i][j])
+					correct_count++;
+			}
+		}
+
+		for(i = 0; i < x_pos; i++)
+			if(input_buf[y_pos][i] == article->page1[y_pos][i])
+				correct_count++;
+	}
+
+	return correct_count;
+}
 void exercise_long(void) {
-	Article articles[LONG_SIZE] = {
+	unsigned offset = 12;
+	Article article[LONG_SIZE] = {
 		{//0
 			{
 				"The Selfish Giant",
@@ -459,7 +499,7 @@ void exercise_long(void) {
 			},
 			{
 				"into it, for it belonged to a witch of great might, and of whom all",
-				"the world was afraid. One day, when the wife was standing at the win-"
+				"the world was afraid. One day, when the wife was standing at the win-",
 				"dow, and looking into the garden, she saw a bed filled with the finest",
 				"rampion; and it looked so fresh and green that she began to wish for",
 				"some; and at length she longed for it greatly.",
@@ -482,46 +522,56 @@ void exercise_long(void) {
 			}
 		}
 	};
+	size_t article_size[NUM_OF_PAGES][NUM_OF_ROWS];
 	int no;
-	int accuracy = 100, speed = 0;
-	int first_page, second_page;
+	int accuracy = 0, speed = 0;
 	int input;
-	char input_buf[MAX_SIZE];
-	int line_count = 0;
-	int idx = 0;
-	int page;
+	char input_buf[NUM_OF_ROWS][MAX_SIZE] = { 0 };
+	int page_num = 0;
 	bool is_first = true;
 	struct timeval start, end;
-	int x, y;
+	int x_pos = 0, y_pos = 0;
+	int i, j;
 
 	srand(time(NULL));
-	
 	no = rand() % LONG_SIZE;
-	first_page = no * 2;
-	second_page = no * 2 + 1;
 
-	memset(input_buf, 0x00, MAX_SIZE);
-	page = first_page;
-	x = 0;
-	y = 12;
+	for(i = 0; i < NUM_OF_ROWS; i++) {
+		article_size[0][i] = strlen(article[no].page1[i]);
+		article_size[1][i] = strlen(article[no].page2[i]);
+	}
+
 	while(1) {
 		start_msg(4);
 		move_cursor(0, 2);
 		printf("정확도 : %3d%%\t현재타수 : %3d\n", accuracy, speed);
 		
 		move_cursor(0, 5);
-		printf("%s", articles[page]);
+		for(i = 0; i < NUM_OF_ROWS; i++) {
+			if(page_num == 0)
+				printf("%s\n", article[no].page1[i]);
+			else 
+				printf("%s\n", article[no].page2[j]);
+		}
+		
+		move_cursor(0, offset);
+		for(i = 0; i <= y_pos; i++)
+			printf("%s\n", input_buf[i]);
 
-		move_cursor(x, y);
+		move_cursor(x_pos, y_pos + offset);
 		input = getch();
+
 		if(input == ESC)
 			return;
 		else if(input == DEL) {
-			if(idx <= 0 || x <= 0) {
+			if(x_pos <= 0) {
 				continue;
 			}
-			idx--;
-			accuracy = cal_accuracy(input_buf, articles[page], idx);
+			else {
+				x_pos--;
+				input_buf[y_pos][x_pos] = 0;
+			}
+			accuracy = cal_accuracy_for_long(input_buf, &article[no], page_num, x_pos, y_pos);
 		}
 		else {
 			if(is_first) {
@@ -531,29 +581,37 @@ void exercise_long(void) {
 			else
 				gettimeofday(&end, NULL);
 			
-			if(input == '\n') {
-				x = 0;
-				y += 2;
-				line_count++;
+			if(x_pos == article_size[page_num][y_pos]) {
+				x_pos = 0;
+				y_pos++;
+				if(input == ' ')
+					continue;
+			}
+			
+			if(input == '\n')
+				continue;
+			if(y_pos == 5) {
+				if(page_num == 0) {
+					page_num = 1;
+					y_pos = 0;
+				}
+				else// page_num == 1인 경우
+					break;
 			}
 
-			input_buf[idx++] = input;
-			accuracy = cal_accuracy(input_buf, articles[page], idx);
-			speed = cal_speed(input_buf, articles[page], idx, &start, &end);
+			input_buf[y_pos][x_pos++] = input;
+			input_buf[y_pos][x_pos] = 0;
+						
+			accuracy = cal_accuracy_for_long(input_buf, &article[no], page_num, x_pos, y_pos);
+			
+			//accuracy = cal_accuracy(input_buf, articles[page], idx);
+			//speed = cal_speed(input_buf, articles[page], idx, &start, &end);
 		}
-		
-		if(line_count == 5) {
-			memset(input_buf, 0x00, MAX_SIZE);
-			idx = 0;
-			page = second_page;
-		}
-		else if(line_count == 10)
-			break;
-		
-		move_cursor(0, 12);
-		input_buf[idx] = 0;
-		printf("%s", input_buf);
 	}
+
+	move_cursor(0, 2);
+	printf("정확도 : %3d%%\t현재타수 : %3d\n", accuracy, speed);
+	move_cursor(0, offset);
 
 	while(getch() != ESC);
 }

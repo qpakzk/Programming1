@@ -419,41 +419,115 @@ void exercise_short(void) {
 int cal_accuracy_for_long(char input_buf[][MAX_SIZE], Article *article, int page_num, int x_pos, int y_pos) {
 	int i, j;
 	int correct_count = 0;
-	
+	int len;
+	int result;
+	int total = 0;
 	if(page_num == 1) {
 		for(i = 0; i < 5; i++) {
-			for(j = 0; j < strlen(article->page2[i]); j++) {
+			len = strlen(article->page2[i]);
+			for(j = 0; j < len; j++) {
+				total++;
 				if(input_buf[i][j] == article->page2[i][j])
 					correct_count++;
 			}
 		}
 
 		for(i = 0; i < y_pos; i++) {
-			for(j = 0; j < strlen(article->page1[i]); j++) {
+			len = strlen(article->page1[i]);
+			for(j = 0; j < len; j++) {
+				total++;
 				if(input_buf[i][j] == article->page1[i][j])
 					correct_count++;
 			}
 		}
 
-		for(i = 0; i < x_pos; i++)
+		for(i = 0; i < x_pos; i++) {
+			total++;
 			if(input_buf[y_pos][i] == article->page1[y_pos][i])
 				correct_count++;
+		}
 	}
 	else {
 		for(i = 0; i < y_pos; i++) {
-			for(j = 0; j < strlen(article->page1[i]); j++) {
+			len = strlen(article->page1[i]);
+			for(j = 0; j < len; j++) {
+				total++;
 				if(input_buf[i][j] == article->page1[i][j])
 					correct_count++;
 			}
 		}
 
-		for(i = 0; i < x_pos; i++)
+		for(i = 0; i < x_pos; i++) {
+			total++;
 			if(input_buf[y_pos][i] == article->page1[y_pos][i])
 				correct_count++;
+		}
 	}
 
-	return correct_count;
+	if(total == 0)
+		return 0;
+	result = correct_count * 100 / total;
+	return result;
 }
+
+int cal_speed_for_long(char input_buf[][MAX_SIZE], Article *article, int page_num, int x_pos, int y_pos,
+						struct timeval *start, struct timeval *end) {
+	long long seconds = end->tv_sec - start->tv_sec;
+	int speed;
+	int i, j;
+	int correct_count = 0;
+	int total = 0;
+	int len;
+
+	if(seconds == 0)
+		return 0;
+	
+	if(page_num == 1) {
+		for(i = 0; i < 5; i++) {
+			len = strlen(article->page2[i]);
+			for(j = 0; j < len; j++) {
+				total++;
+				if(input_buf[i][j] == article->page2[i][j])
+					correct_count++;
+			}
+		}
+
+		for(i = 0; i < y_pos; i++) {
+			len = strlen(article->page1[i]);
+			for(j = 0; j < len; j++) {
+				total++;
+				if(input_buf[i][j] == article->page1[i][j])
+					correct_count++;
+			}
+		}
+
+		for(i = 0; i < x_pos; i++) {
+			total++;
+			if(input_buf[y_pos][i] == article->page1[y_pos][i])
+				correct_count++;
+		}
+	}
+	else {
+		for(i = 0; i < y_pos; i++) {
+			len = strlen(article->page1[i]);
+			for(j = 0; j < len; j++) {
+				total++;
+				if(input_buf[i][j] == article->page1[i][j])
+					correct_count++;
+			}
+		}
+
+		for(i = 0; i < x_pos; i++) {
+			total++;
+			if(input_buf[y_pos][i] == article->page1[y_pos][i])
+				correct_count++;
+		}
+	}
+
+	speed = (correct_count * 60) / seconds;
+	return speed;	
+}
+
 void exercise_long(void) {
 	unsigned offset = 12;
 	Article article[LONG_SIZE] = {
@@ -477,7 +551,7 @@ void exercise_long(void) {
 			{
 				"The Elves and the Shoemaker",
 				"There was once a shoemaker, who, through no fault of his own, became",
-				"so poor that at last hr had nothing left but just enough leather to",
+				"so poor that at last he had nothing left but just enough leather to",
 				"make one pair of shoes. He cut out the shoes at night, so as to set to",
 				"work upon them next morning; and as he had a good conscience, he laid",
 			},
@@ -551,7 +625,7 @@ void exercise_long(void) {
 			if(page_num == 0)
 				printf("%s\n", article[no].page1[i]);
 			else 
-				printf("%s\n", article[no].page2[j]);
+				printf("%s\n", article[no].page2[i]);
 		}
 		
 		move_cursor(0, offset);
@@ -601,11 +675,9 @@ void exercise_long(void) {
 
 			input_buf[y_pos][x_pos++] = input;
 			input_buf[y_pos][x_pos] = 0;
-						
+
 			accuracy = cal_accuracy_for_long(input_buf, &article[no], page_num, x_pos, y_pos);
-			
-			//accuracy = cal_accuracy(input_buf, articles[page], idx);
-			//speed = cal_speed(input_buf, articles[page], idx, &start, &end);
+			speed = cal_speed_for_long(input_buf, &article[no], page_num, x_pos, y_pos, &start, &end);
 		}
 	}
 

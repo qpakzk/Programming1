@@ -11,13 +11,22 @@
 #define WORD_SIZE 100
 #define SHORT_SIZE 30
 #define LONG_SIZE 4
-#define MAX_SIZE 100000
+#define MAX_SIZE 1000000
 
 #define ESC 0x1B
 #define DEL 0x7F
 
 #define WORD_ROUND 20
 #define SHORT_ROUND 5
+
+#define NUM_OF_PAGES 2
+//긴 글 연습 데이터 저장을 위한 타입 정의
+#define NUM_OF_ROWS 5
+
+typedef struct _Article {
+	char *page1[NUM_OF_ROWS];
+	char *page2[NUM_OF_ROWS];
+} Article;
 
 void clear(void);
 void move_cursor(int x, int y);
@@ -407,57 +416,236 @@ void exercise_short(void) {
 	while(getch() != ESC);
 }
 
+int cal_accuracy_for_long(char input_buf[][MAX_SIZE], Article *article, int page_num, int x_pos, int y_pos) {
+	int i, j;
+	int correct_count = 0;
+	int len;
+	int result;
+	int total = 0;
+	if(page_num == 1) {
+		for(i = 0; i < 5; i++) {
+			len = strlen(article->page2[i]);
+			for(j = 0; j < len; j++) {
+				total++;
+				if(input_buf[i][j] == article->page2[i][j])
+					correct_count++;
+			}
+		}
+
+		for(i = 0; i < y_pos; i++) {
+			len = strlen(article->page1[i]);
+			for(j = 0; j < len; j++) {
+				total++;
+				if(input_buf[i][j] == article->page1[i][j])
+					correct_count++;
+			}
+		}
+
+		for(i = 0; i < x_pos; i++) {
+			total++;
+			if(input_buf[y_pos][i] == article->page1[y_pos][i])
+				correct_count++;
+		}
+	}
+	else {
+		for(i = 0; i < y_pos; i++) {
+			len = strlen(article->page1[i]);
+			for(j = 0; j < len; j++) {
+				total++;
+				if(input_buf[i][j] == article->page1[i][j])
+					correct_count++;
+			}
+		}
+
+		for(i = 0; i < x_pos; i++) {
+			total++;
+			if(input_buf[y_pos][i] == article->page1[y_pos][i])
+				correct_count++;
+		}
+	}
+
+	if(total == 0)
+		return 0;
+	result = correct_count * 100 / total;
+	return result;
+}
+
+int cal_speed_for_long(char input_buf[][MAX_SIZE], Article *article, int page_num, int x_pos, int y_pos,
+						struct timeval *start, struct timeval *end) {
+	long long seconds = end->tv_sec - start->tv_sec;
+	int speed;
+	int i, j;
+	int correct_count = 0;
+	int total = 0;
+	int len;
+
+	if(seconds == 0)
+		return 0;
+	
+	if(page_num == 1) {
+		for(i = 0; i < 5; i++) {
+			len = strlen(article->page2[i]);
+			for(j = 0; j < len; j++) {
+				total++;
+				if(input_buf[i][j] == article->page2[i][j])
+					correct_count++;
+			}
+		}
+
+		for(i = 0; i < y_pos; i++) {
+			len = strlen(article->page1[i]);
+			for(j = 0; j < len; j++) {
+				total++;
+				if(input_buf[i][j] == article->page1[i][j])
+					correct_count++;
+			}
+		}
+
+		for(i = 0; i < x_pos; i++) {
+			total++;
+			if(input_buf[y_pos][i] == article->page1[y_pos][i])
+				correct_count++;
+		}
+	}
+	else {
+		for(i = 0; i < y_pos; i++) {
+			len = strlen(article->page1[i]);
+			for(j = 0; j < len; j++) {
+				total++;
+				if(input_buf[i][j] == article->page1[i][j])
+					correct_count++;
+			}
+		}
+
+		for(i = 0; i < x_pos; i++) {
+			total++;
+			if(input_buf[y_pos][i] == article->page1[y_pos][i])
+				correct_count++;
+		}
+	}
+
+	speed = (correct_count * 60) / seconds;
+	return speed;	
+}
+
 void exercise_long(void) {
-	char *articles[LONG_SIZE * 2] = {
-		"The Little prince\nOnce when I was six years old I saw a magnificent picture in a book,\ncalled True Stories from Nature, about the primeval forest.\n It was a picture of a boa constrictor in the act of swallowing an animal.\nHere is a copy of the drawing.\n",
-		"In the book it said:\"Boa constrictors swallow their prey whole,\nwithout chewing it. After that they are not able to move,\nand they sleep through the six months that they need for digestion.\"\nI pondered deeply, then, over the adventures of the jungle.\nAnd after some work with a colored pencil I succeeded in making my first drawing.\n",
-		"The elves and the shoemaker\nOnce upon a time, there was a poor shoemaker and his wife.\n\"This is all the leather I have left,\" said the poor shoemaker.\n\"I can make just one pair of shoes.\"\nThat night, the shoemaker cut the leather.\n",
-		"\"I\'ll make these shoes in the morning,\" he said.\nHe left the leather in the shop and went to bed.\nThe next morning, the shoemaker came downstairs.\nTo his surprise, the leather had been made into a pair of beautiful shoes.\nThe shoemaker called his wife.\n",
-		"Rapunzel\nThere once lived a man and his wife, who had long wished for a child,\nbut in vain.  Now there was at the back of their house a little window\nwhich overlooked a beautiful garden full of the finest vegetables and\nflowers; but there was a high wall all round it, and no one ventured\n",
-		"into it, for it belonged to a witch of great might, and of whom all\nthe world was afraid.  One day, when the wife was standing at the win-\ndow, and looking into the garden, she saw a bed filled with the finest\nrampion; and it looked so fresh and green that she began to wish for\nsome; and at length she longed for it greatly.\n",
-		"The Wind and the Sun\nThe North Wind was rushing along and blowing the clouds as he passed.\n\"Who is so strong as I?\" he cried. \n\"I am even stronger than the sun.\"\n\"Can you show that you are stronger?\" asked the Sun.\n",
-		"\"A traveler is coming over the hill\" said the Wind.\n\"Let us see which of us can first make him take off his long cloak. The one who succeeds will prove himself the stronger.\"\nThe North Wind began first.\nHe blew a gale, tore up trees, and raised clouds of dust.\nBut the traveler only wrapped his cloak more closely about him, and kept on his way.\n"
+	unsigned offset = 12;
+	Article article[LONG_SIZE] = {
+		{//0
+			{
+				"The Selfish Giant",
+				"Every afternoon, as they were coming from school, the children used",
+				"to go and play in the Giant\'s garden.",
+				"It was a large lovely garden, with soft green grass. Here and there",
+				"over the grass stook beautiful flowers like stars, and there were",
+			},
+			{
+				"twelve peachtrees that in the springtime broke out into delicate blos-",
+				"soms of pink and pearl, and in the autumn bore rich fruit. The birds",
+				"sat in the trees and sang so sweetly that the children used to stop",
+				"their games in order to listen to them. \"How happy we are here!\" they",
+				"cried to each other.",
+			}
+		},
+		{//1
+			{
+				"The Elves and the Shoemaker",
+				"There was once a shoemaker, who, through no fault of his own, became",
+				"so poor that at last he had nothing left but just enough leather to",
+				"make one pair of shoes. He cut out the shoes at night, so as to set to",
+				"work upon them next morning; and as he had a good conscience, he laid",
+			},
+			{
+				"himself quietly down in his bed, committed himself to heaven, and fell",
+				"asleep. In the morning, after he had said his prayers, and was going",
+				"to get to work, he found the pair of shoes made and finished, and stan-",
+				"ding on his table. He wae very much astonished, and could not tell",
+				"what to think, and he took the shoes in his hand to examine then more",
+			}
+		},
+		{//2
+			{
+				"Rapunzel",
+				"There once lived a man and his wife, who had long wished for a child,",
+				"but in vain. Now there was at the back of their house a little window",
+				"which overlooked a beautiful garden full of the finest vegetables and",
+				"flowers; but there was a high wall all round it, and no one ventured",
+			},
+			{
+				"into it, for it belonged to a witch of great might, and of whom all",
+				"the world was afraid. One day, when the wife was standing at the win-",
+				"dow, and looking into the garden, she saw a bed filled with the finest",
+				"rampion; and it looked so fresh and green that she began to wish for",
+				"some; and at length she longed for it greatly.",
+			}
+		},
+		{//3
+			{
+				"The Wind and the Sun",
+				"The North Wind was rushing along and blowing the clouds as he passed.",
+				"\"Who is so strong as I?\" he cried.",
+				"\"I am even stronger than the sun.\"",
+				"\"Can you show that you are stronger?\" asked the Sun.",
+			},
+			{
+				"\"A traveler is coming over the hill,\" said the Wind. \"Let us see which",
+				"of us can first make him take off his long cloak.", 
+				"The one who succeeds will prove himself the stronger.\"",
+				"The North Wind began first. He blew a gale, tore up trees, and raised",
+				"clouds of dust.",
+			}
+		}
 	};
+	size_t article_size[NUM_OF_PAGES][NUM_OF_ROWS];
 	int no;
-	int accuracy = 100, speed = 0;
-	int first_page, second_page;
+	int accuracy = 0, speed = 0;
 	int input;
-	char input_buf[MAX_SIZE];
-	int line_count = 0;
-	int idx = 0;
-	int page;
+	char input_buf[NUM_OF_ROWS][MAX_SIZE] = { 0 };
+	int page_num = 0;
 	bool is_first = true;
 	struct timeval start, end;
-	int x, y;
+	int x_pos = 0, y_pos = 0;
+	int i, j;
 
 	srand(time(NULL));
-	
 	no = rand() % LONG_SIZE;
-	first_page = no * 2;
-	second_page = no * 2 + 1;
 
-	memset(input_buf, 0x00, MAX_SIZE);
-	page = first_page;
-	x = 0;
-	y = 12;
+	for(i = 0; i < NUM_OF_ROWS; i++) {
+		article_size[0][i] = strlen(article[no].page1[i]);
+		article_size[1][i] = strlen(article[no].page2[i]);
+	}
+
 	while(1) {
 		start_msg(4);
 		move_cursor(0, 2);
 		printf("정확도 : %3d%%\t현재타수 : %3d\n", accuracy, speed);
 		
 		move_cursor(0, 5);
-		printf("%s", articles[page]);
+		for(i = 0; i < NUM_OF_ROWS; i++) {
+			if(page_num == 0)
+				printf("%s\n", article[no].page1[i]);
+			else 
+				printf("%s\n", article[no].page2[i]);
+		}
+		
+		move_cursor(0, offset);
+		for(i = 0; i <= y_pos; i++)
+			printf("%s\n", input_buf[i]);
 
-		move_cursor(x, y);
+		move_cursor(x_pos, y_pos + offset);
 		input = getch();
+
 		if(input == ESC)
 			return;
 		else if(input == DEL) {
-			if(idx <= 0 || x <= 0) {
+			if(x_pos <= 0) {
 				continue;
 			}
-			idx--;
-			accuracy = cal_accuracy(input_buf, articles[page], idx);
+			else {
+				x_pos--;
+				input_buf[y_pos][x_pos] = 0;
+			}
+			accuracy = cal_accuracy_for_long(input_buf, &article[no], page_num, x_pos, y_pos);
 		}
 		else {
 			if(is_first) {
@@ -467,29 +655,35 @@ void exercise_long(void) {
 			else
 				gettimeofday(&end, NULL);
 			
-			if(input == '\n') {
-				x = 0;
-				y += 2;
-				line_count++;
+			if(x_pos == article_size[page_num][y_pos]) {
+				x_pos = 0;
+				y_pos++;
+				if(input == ' ')
+					continue;
+			}
+			
+			if(input == '\n')
+				continue;
+			if(y_pos == 5) {
+				if(page_num == 0) {
+					page_num = 1;
+					y_pos = 0;
+				}
+				else// page_num == 1인 경우
+					break;
 			}
 
-			input_buf[idx++] = input;
-			accuracy = cal_accuracy(input_buf, articles[page], idx);
-			speed = cal_speed(input_buf, articles[page], idx, &start, &end);
+			input_buf[y_pos][x_pos++] = input;
+			input_buf[y_pos][x_pos] = 0;
+
+			accuracy = cal_accuracy_for_long(input_buf, &article[no], page_num, x_pos, y_pos);
+			speed = cal_speed_for_long(input_buf, &article[no], page_num, x_pos, y_pos, &start, &end);
 		}
-		
-		if(line_count == 5) {
-			memset(input_buf, 0x00, MAX_SIZE);
-			idx = 0;
-			page = second_page;
-		}
-		else if(line_count == 10)
-			break;
-		
-		move_cursor(0, 12);
-		input_buf[idx] = 0;
-		printf("%s", input_buf);
 	}
+
+	move_cursor(0, 2);
+	printf("정확도 : %3d%%\t현재타수 : %3d\n", accuracy, speed);
+	move_cursor(0, offset);
 
 	while(getch() != ESC);
 }

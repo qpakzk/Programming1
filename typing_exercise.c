@@ -34,8 +34,8 @@ void start_msg(int no);
 int getch(void);
 
 int menu(void);
-int cal_accuracy(char *str1, char *str2, int last);
-int cal_speed(char *input, char *sen, int idx, struct timeval *start, struct timeval *end);
+int cal_accuracy_for_short(char *str1, char *str2, int last);
+int cal_speed_for_short(char *input, char *sen, int idx, struct timeval *start, struct timeval *end);
 
 void exercise_pos(void);
 void exercise_word(void);
@@ -113,60 +113,55 @@ int menu(void) {
 	getchar();
 	return no;
 }
-void exercise_pos(void){
-	start_msg(1);
+
+void exercise_pos(void) {
     int right = 0; //정확히 입력한 단어 개수
     int pro = 0, err = 0, acc = 0; //pro:정확도 err:오타수 acc:정확도
-    int input, char_size;
-    
+    int input;
+	char ch;
+    bool is_uppercase;
+	bool is_err = false;
+
 	srand(time(NULL));
-	
-	for ( right; right < 20; ) {
-         move_cursor(0,2);
-         printf("진행도 : %3d%%\t오타수 : %3d\t정확도 : %d%%\n", pro, err, acc);
-         move_cursor(0,5);
+	while(right < 20) {
+		start_msg(1);
+		move_cursor(0, 2);
+		printf("진행도 : %3d%%\t오타수 : %3d\t정확도 : %3d%%\n", pro, err, acc);
 
-        char_size = rand()%2;         // 대문자인지 소문자인지 rand함수로 결정
-
-        if (char_size == 0){         // 소문자일때
-             char c = rand()%26+97;   // 소문자 랜덤
-             printf("%c\n", c);
-             input = getch();
-             if ( input == c ){
-                 ++right;
-                 pro+=5;
-				 acc = right*100/(right+err);    
-			 }
-			 else if ( input == ESC)
-				 return;
-             else {
-                ++err;
-			 	acc = right*100/(right+err);
-			 }
-         }
-
-        else {                       // 대문자 일때
-             char d = rand()%26+65;   // 대문자 랜덤
-             printf("%c\n", d);
-             input = getch();
-             if ( input == d ){
-                 ++right;
-                pro+=5;
-				acc = right*100/(right+err);
-                 }
-			 else if (input == ESC)
-				 return;
-             else {
-				 ++err;
-				 acc = right*100/(right+err) ;
-			 }
+		if(!is_err) {
+			is_uppercase = rand() % 2;// 대문자인지 소문자인지 rand함수로 결정
+			if (!is_uppercase)// 소문자일때
+				ch = rand() % 26 + 'a';// 소문자 랜덤
+			else// 대문자 일때
+				ch = rand() % 26 + 'A';// 대문자 랜덤
 		}
+
+		move_cursor(0, 5);
+		printf("%c", ch);
+
+		move_cursor(0, 6);
+		input = getch();
+		if(input == ESC)
+			return;
+		printf("%c", input);
+		if(input == ch) {
+			++right;
+			pro += 5;
+			is_err = false;
+		}
+		else {
+			++err;
+			is_err = true;
+		}
+		acc = right * 100 / (right + err);
 	}
+
 	start_msg(1);
 	move_cursor(0,2);
-	printf("진행도 : %3d%%\t오타수 : %2d\t정확도 : %d%%\n", pro, err, acc);
-	move_cursor(0 ,5);
+	printf("진행도 : %3d%%\t오타수 : %2d\t정확도 : %3d%%\n", pro, err, acc);
+	move_cursor(0, 5);
 	printf("종료하려면 enter를 누르세요.");
+	move_cursor(0, 6);
 	while(getch() != '\n');
 }
 
@@ -262,7 +257,7 @@ void exercise_word(void) {
 	while(getch() != '\n');
 }
 
-int cal_accuracy(char *input, char *sen, int last) {
+int cal_accuracy_for_short(char *input, char *sen, int last) {
 	int correct_count = 0;
 	int len = strlen(sen);
 	int result;
@@ -279,7 +274,7 @@ int cal_accuracy(char *input, char *sen, int last) {
 	return result;
 }
 
-int cal_speed(char *input, char *sen, int idx, struct timeval *start, struct timeval *end) {
+int cal_speed_for_short(char *input, char *sen, int idx, struct timeval *start, struct timeval *end) {
 	long long seconds = end->tv_sec - start->tv_sec;
 	int speed;
 	int i;
@@ -378,7 +373,7 @@ void exercise_short(void) {
 					continue;
 				}
 				idx--;
-				accuracy = cal_accuracy(input_buf, sentence[no], idx);
+				accuracy = cal_accuracy_for_short(input_buf, sentence[no], idx);
 			}
 			else if(input == '\n') {
 				progress += 20;
@@ -397,8 +392,8 @@ void exercise_short(void) {
 				else
 					gettimeofday(&end, NULL);
 				input_buf[idx++] = input;
-				accuracy = cal_accuracy(input_buf, sentence[no], idx);
-				current_speed = cal_speed(input_buf, sentence[no], idx, &start, &end);
+				accuracy = cal_accuracy_for_short(input_buf, sentence[no], idx);
+				current_speed = cal_speed_for_short(input_buf, sentence[no], idx, &start, &end);
 				max_speed = max_speed < current_speed ? current_speed : max_speed;
 			}
 			

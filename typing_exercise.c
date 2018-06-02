@@ -166,8 +166,6 @@ void exercise_pos(void) {
 }
 
 void exercise_word(void) {
-	start_msg(2);
-
 	char *word[WORD_SIZE] = {
 		"appointment", "communication", "doubt", "remind", "phenomenon", 
 		"meanwhile", "import", "interacrion", "likewise", "logger",
@@ -201,6 +199,7 @@ void exercise_word(void) {
 	srand(time(NULL));
 
 	for(i = 0; i < WORD_ROUND; i++) {
+		start_msg(2);
 		duplicate = false;
 		while(1) {
 			no = random() % WORD_SIZE;
@@ -245,13 +244,14 @@ void exercise_word(void) {
 			else
 				input_buf[idx++] = (char) input;
 		}
-		printf("round = %d\n", i);
 	}
 
 	if(i == WORD_ROUND) {
 		start_msg(2);
 		move_cursor(0,2);
 		printf("진행도 : %3d%%\t오타수 : %3d\t 정확도 : %3d%%\n", progress, typos, accuracy);
+		move_cursor(0, 5);
+		printf("종료하려면 enter를 누르세요.");
 		move_cursor(0,7);
 	}
 	while(getch() != '\n');
@@ -294,7 +294,6 @@ int cal_speed_for_short(char *input, char *sen, int idx, struct timeval *start, 
 }
 
 void exercise_short(void) {
-	//reference : https://www.fluentu.com/blog/english/ko/%EC%A7%80%EA%B8%88-%EB%B0%94%EB%A1%9C-%EB%B0%B0%EC%9B%8C%EC%95%BC-%ED%95%A0-%EA%B0%80%EC%9E%A5-%EC%9C%A0%EC%9A%A9%ED%95%9C-%EC%98%81%EC%96%B4-%EC%86%8D%EB%8B%B4-50-%EA%B0%80%EC%A7%80/
 	char *sentence[SHORT_SIZE] = {
 		"The grass is always greener on the other side of the fence.",//0
 		"Don't judge a book by its cover.",//1
@@ -406,6 +405,8 @@ void exercise_short(void) {
 	start_msg(3);
 	move_cursor(0, 2);
 	printf("진행도 : %3d%%\t현재타수 : %3d\t최고타수 : %3d\t정확도 : %d%%\n", progress, current_speed, max_speed, accuracy);
+	move_cursor(0, 5);
+	printf("종료하려면 esc를 누르세요.");
 	move_cursor(0, 7);
 
 	while(getch() != ESC);
@@ -692,5 +693,4 @@ void error(void) {
 	fprintf(stderr, "잘못된 번호를 입력하였습니다.\n");
 	sleep(1);
 	clear();
-	exit(1);
 }

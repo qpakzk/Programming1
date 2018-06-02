@@ -158,7 +158,7 @@ void exercise_pos(void) {
 
 	start_msg(1);
 	move_cursor(0,2);
-	printf("진행도 : %3d%%\t오타수 : %2d\t정확도 : %3d%%\n", pro, err, acc);
+	printf("진행도 : %3d%%\t오타수 : %3d\t정확도 : %3d%%\n", pro, err, acc);
 	move_cursor(0, 5);
 	printf("종료하려면 enter를 누르세요.");
 	move_cursor(0, 6);
@@ -359,7 +359,7 @@ void exercise_short(void) {
 		while(1) {
 			start_msg(3);
 			move_cursor(0, 2);
-			printf("진행도 : %3d%%\t현재타수 : %3d\t최고타수 : %3d\t정확도 : %d%%\n", progress, current_speed, max_speed, accuracy);
+			printf("진행도 : %3d%%\t현재타수 : %3d\t최고타수 : %3d\t정확도 : %3d%%\n", progress, current_speed, max_speed, accuracy);
 			move_cursor(0, 5);
 			printf("%s", sentence[no]);
 
@@ -406,7 +406,7 @@ void exercise_short(void) {
 
 	start_msg(3);
 	move_cursor(0, 2);
-	printf("진행도 : %3d%%\t현재타수 : %3d\t최고타수 : %3d\t정확도 : %d%%\n", progress, current_speed, max_speed, accuracy);
+	printf("진행도 : %3d%%\t현재타수 : %3d\t최고타수 : %3d\t정확도 : %3d%%\n", progress, current_speed, max_speed, accuracy);
 	move_cursor(0, 5);
 	printf("종료하려면 esc를 누르세요.");
 	move_cursor(0, 7);
@@ -644,6 +644,7 @@ void exercise_long(void) {
 				input_buf[y_pos][x_pos] = 0;
 			}
 			accuracy = cal_accuracy_for_long(input_buf, &article[no], page_num, x_pos, y_pos);
+			speed = cal_speed_for_long(input_buf, &article[no], page_num, x_pos, y_pos, &start, &end);
 		}
 		else {
 			if(is_first) {
@@ -678,9 +679,11 @@ void exercise_long(void) {
 			speed = cal_speed_for_long(input_buf, &article[no], page_num, x_pos, y_pos, &start, &end);
 		}
 	}
-
+	start_msg(4);
 	move_cursor(0, 2);
 	printf("정확도 : %3d%%\t현재타수 : %3d\n", accuracy, speed);
+	move_cursor(0, 5);
+	printf("종료하려면 esc를 누르세요.");
 	move_cursor(0, offset);
 
 	while(getch() != ESC);

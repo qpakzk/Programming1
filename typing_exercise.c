@@ -11,7 +11,7 @@
 #define WORD_SIZE 100
 #define SHORT_SIZE 30
 #define LONG_SIZE 4
-#define MAX_SIZE 1000000
+#define MAX_SIZE 10000
 
 #define ESC 0x1B
 #define DEL 0x7F
@@ -30,12 +30,14 @@ typedef struct _Article {
 
 void clear(void);
 void move_cursor(int x, int y);
-void start_msg(int no);
 int getch(void);
-
+void start_msg(int no);
 int menu(void);
+
 int cal_accuracy_for_short(char *str1, char *str2, int last);
 int cal_speed_for_short(char *input, char *sen, int idx, struct timeval *start, struct timeval *end);
+int cal_accuracy_for_long(char input_buf[][MAX_SIZE], Article *article, int page_num, int x_pos, int y_pos);
+int cal_speed_for_long(char input_buf[][MAX_SIZE], Article *article, int page_num, int x_pos, int y_pos, struct timeval *start, struct timeval *end);
 
 void exercise_pos(void);
 void exercise_word(void);
@@ -468,8 +470,7 @@ int cal_accuracy_for_long(char input_buf[][MAX_SIZE], Article *article, int page
 	return result;
 }
 
-int cal_speed_for_long(char input_buf[][MAX_SIZE], Article *article, int page_num, int x_pos, int y_pos,
-						struct timeval *start, struct timeval *end) {
+int cal_speed_for_long(char input_buf[][MAX_SIZE], Article *article, int page_num, int x_pos, int y_pos, struct timeval *start, struct timeval *end) {
 	long long seconds = end->tv_sec - start->tv_sec;
 	int speed;
 	int i, j;

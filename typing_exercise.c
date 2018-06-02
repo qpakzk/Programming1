@@ -44,7 +44,7 @@ int getch(void);
 void start_msg(int no);
 int menu(void);
 
-int cal_accuracy_for_short(char *str1, char *str2, int last);
+int cal_accuracy_for_short(char *input, char *sen, int idx);
 int cal_speed_for_short(char *input, char *sen, int idx, struct timeval *start, struct timeval *end);
 int cal_accuracy_for_long(char input_buf[][NUM_OF_ROWS][MAX_SIZE], Article *article, int page_num, int x_pos, int y_pos);
 int cal_speed_for_long(char input_buf[][NUM_OF_ROWS][MAX_SIZE], Article *article, int page_num, int x_pos, int y_pos, struct timeval *start, struct timeval *end);

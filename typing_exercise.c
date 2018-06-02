@@ -11,7 +11,7 @@
 #define WORD_SIZE 100
 #define SHORT_SIZE 30
 #define LONG_SIZE 4
-#define MAX_SIZE 10000
+#define MAX_SIZE 1000
 
 #define ESC 0x1B
 #define DEL 0x7F
@@ -36,8 +36,8 @@ int menu(void);
 
 int cal_accuracy_for_short(char *str1, char *str2, int last);
 int cal_speed_for_short(char *input, char *sen, int idx, struct timeval *start, struct timeval *end);
-int cal_accuracy_for_long(char input_buf[][MAX_SIZE], Article *article, int page_num, int x_pos, int y_pos);
-int cal_speed_for_long(char input_buf[][MAX_SIZE], Article *article, int page_num, int x_pos, int y_pos, struct timeval *start, struct timeval *end);
+int cal_accuracy_for_long(char input_buf[][NUM_OF_ROWS][MAX_SIZE], Article *article, int page_num, int x_pos, int y_pos);
+int cal_speed_for_long(char input_buf[][NUM_OF_ROWS][MAX_SIZE], Article *article, int page_num, int x_pos, int y_pos, struct timeval *start, struct timeval *end);
 
 void exercise_pos(void);
 void exercise_word(void);
@@ -51,7 +51,7 @@ int main(void) {
 	
 	while(1) {
 		no = menu();
-	
+		
 		switch(no) {
 		case 1:
 			exercise_pos();
@@ -162,7 +162,7 @@ void exercise_pos(void) {
 	move_cursor(0,2);
 	printf("진행도 : %3d%%\t오타수 : %3d\t정확도 : %3d%%\n", pro, err, acc);
 	move_cursor(0, 5);
-	printf("종료하려면 enter를 누르세요.");
+	printf("종료하려면 ENTER를 누르세요.");
 	move_cursor(0, 6);
 	while(getch() != '\n');
 }
@@ -253,7 +253,7 @@ void exercise_word(void) {
 		move_cursor(0,2);
 		printf("진행도 : %3d%%\t오타수 : %3d\t 정확도 : %3d%%\n", progress, typos, accuracy);
 		move_cursor(0, 5);
-		printf("종료하려면 enter를 누르세요.");
+		printf("종료하려면 ENTER를 누르세요.");
 		move_cursor(0,7);
 	}
 	while(getch() != '\n');
@@ -410,13 +410,13 @@ void exercise_short(void) {
 	move_cursor(0, 2);
 	printf("진행도 : %3d%%\t현재타수 : %3d\t최고타수 : %3d\t정확도 : %3d%%\n", progress, current_speed, max_speed, accuracy);
 	move_cursor(0, 5);
-	printf("종료하려면 esc를 누르세요.");
+	printf("종료하려면 ESC를 누르세요.");
 	move_cursor(0, 7);
 
 	while(getch() != ESC);
 }
 
-int cal_accuracy_for_long(char input_buf[][MAX_SIZE], Article *article, int page_num, int x_pos, int y_pos) {
+int cal_accuracy_for_long(char input_buf[][NUM_OF_ROWS][MAX_SIZE], Article *article, int page_num, int x_pos, int y_pos) {
 	int i, j;
 	int correct_count = 0;
 	int len;
@@ -424,26 +424,26 @@ int cal_accuracy_for_long(char input_buf[][MAX_SIZE], Article *article, int page
 	int total = 0;
 	if(page_num == 1) {
 		for(i = 0; i < 5; i++) {
-			len = strlen(article->page2[i]);
+			len = strlen(article->page1[i]);
 			for(j = 0; j < len; j++) {
 				total++;
-				if(input_buf[i][j] == article->page2[i][j])
+				if(input_buf[0][i][j] == article->page1[i][j])
 					correct_count++;
 			}
 		}
 
 		for(i = 0; i < y_pos; i++) {
-			len = strlen(article->page1[i]);
+			len = strlen(article->page2[i]);
 			for(j = 0; j < len; j++) {
 				total++;
-				if(input_buf[i][j] == article->page1[i][j])
+				if(input_buf[1][i][j] == article->page2[i][j])
 					correct_count++;
 			}
 		}
 
 		for(i = 0; i < x_pos; i++) {
 			total++;
-			if(input_buf[y_pos][i] == article->page1[y_pos][i])
+			if(input_buf[1][y_pos][i] == article->page2[y_pos][i])
 				correct_count++;
 		}
 	}
@@ -452,14 +452,14 @@ int cal_accuracy_for_long(char input_buf[][MAX_SIZE], Article *article, int page
 			len = strlen(article->page1[i]);
 			for(j = 0; j < len; j++) {
 				total++;
-				if(input_buf[i][j] == article->page1[i][j])
+				if(input_buf[0][i][j] == article->page1[i][j])
 					correct_count++;
 			}
 		}
 
 		for(i = 0; i < x_pos; i++) {
 			total++;
-			if(input_buf[y_pos][i] == article->page1[y_pos][i])
+			if(input_buf[0][y_pos][i] == article->page1[y_pos][i])
 				correct_count++;
 		}
 	}
@@ -470,7 +470,7 @@ int cal_accuracy_for_long(char input_buf[][MAX_SIZE], Article *article, int page
 	return result;
 }
 
-int cal_speed_for_long(char input_buf[][MAX_SIZE], Article *article, int page_num, int x_pos, int y_pos, struct timeval *start, struct timeval *end) {
+int cal_speed_for_long(char input_buf[][NUM_OF_ROWS][MAX_SIZE], Article *article, int page_num, int x_pos, int y_pos, struct timeval *start, struct timeval *end) {
 	long long seconds = end->tv_sec - start->tv_sec;
 	int speed;
 	int i, j;
@@ -483,26 +483,26 @@ int cal_speed_for_long(char input_buf[][MAX_SIZE], Article *article, int page_nu
 	
 	if(page_num == 1) {
 		for(i = 0; i < 5; i++) {
-			len = strlen(article->page2[i]);
+			len = strlen(article->page1[i]);
 			for(j = 0; j < len; j++) {
 				total++;
-				if(input_buf[i][j] == article->page2[i][j])
+				if(input_buf[0][i][j] == article->page1[i][j])
 					correct_count++;
 			}
 		}
 
 		for(i = 0; i < y_pos; i++) {
-			len = strlen(article->page1[i]);
+			len = strlen(article->page2[i]);
 			for(j = 0; j < len; j++) {
 				total++;
-				if(input_buf[i][j] == article->page1[i][j])
+				if(input_buf[1][i][j] == article->page2[i][j])
 					correct_count++;
 			}
 		}
 
 		for(i = 0; i < x_pos; i++) {
 			total++;
-			if(input_buf[y_pos][i] == article->page1[y_pos][i])
+			if(input_buf[1][y_pos][i] == article->page2[y_pos][i])
 				correct_count++;
 		}
 	}
@@ -511,14 +511,14 @@ int cal_speed_for_long(char input_buf[][MAX_SIZE], Article *article, int page_nu
 			len = strlen(article->page1[i]);
 			for(j = 0; j < len; j++) {
 				total++;
-				if(input_buf[i][j] == article->page1[i][j])
+				if(input_buf[0][i][j] == article->page1[i][j])
 					correct_count++;
 			}
 		}
 
 		for(i = 0; i < x_pos; i++) {
 			total++;
-			if(input_buf[y_pos][i] == article->page1[y_pos][i])
+			if(input_buf[0][y_pos][i] == article->page1[y_pos][i])
 				correct_count++;
 		}
 	}
@@ -528,7 +528,6 @@ int cal_speed_for_long(char input_buf[][MAX_SIZE], Article *article, int page_nu
 }
 
 void exercise_long(void) {
-	unsigned offset = 12;
 	Article article[LONG_SIZE] = {
 		{//0
 			{
@@ -558,7 +557,7 @@ void exercise_long(void) {
 				"himself quietly down in his bed, committed himself to heaven, and fell",
 				"asleep. In the morning, after he had said his prayers, and was going",
 				"to get to work, he found the pair of shoes made and finished, and stan-",
-				"ding on his table. He wae very much astonished, and could not tell",
+				"ding on his table. He was very much astonished, and could not tell",
 				"what to think, and he took the shoes in his hand to examine then more",
 			}
 		},
@@ -599,7 +598,7 @@ void exercise_long(void) {
 	int no;
 	int accuracy = 0, speed = 0;
 	int input;
-	char input_buf[NUM_OF_ROWS][MAX_SIZE] = { 0 };
+	char input_buf[NUM_OF_PAGES][NUM_OF_ROWS][MAX_SIZE];
 	int page_num = 0;
 	bool is_first = true;
 	struct timeval start, end;
@@ -614,6 +613,7 @@ void exercise_long(void) {
 		article_size[1][i] = strlen(article[no].page2[i]);
 	}
 
+	memset(input_buf, 0x00, sizeof(input_buf));
 	while(1) {
 		start_msg(4);
 		move_cursor(0, 2);
@@ -626,14 +626,13 @@ void exercise_long(void) {
 			else 
 				printf("%s\n", article[no].page2[i]);
 		}
-		
-		move_cursor(0, offset);
+	
+		move_cursor(0, 12);
 		for(i = 0; i <= y_pos; i++)
-			printf("%s\n", input_buf[i]);
+			printf("%s\n", input_buf[page_num][i]);
 
-		move_cursor(x_pos, y_pos + offset);
+		move_cursor(x_pos, y_pos + 12);
 		input = getch();
-
 		if(input == ESC)
 			return;
 		else if(input == DEL) {
@@ -642,7 +641,7 @@ void exercise_long(void) {
 			}
 			else {
 				x_pos--;
-				input_buf[y_pos][x_pos] = 0;
+				input_buf[page_num][y_pos][x_pos] = 0;
 			}
 			accuracy = cal_accuracy_for_long(input_buf, &article[no], page_num, x_pos, y_pos);
 			speed = cal_speed_for_long(input_buf, &article[no], page_num, x_pos, y_pos, &start, &end);
@@ -654,16 +653,11 @@ void exercise_long(void) {
 			}
 			else
 				gettimeofday(&end, NULL);
-			
-			if(x_pos == article_size[page_num][y_pos]) {
+
+			if(input == '\n') {
 				x_pos = 0;
 				y_pos++;
-				if(input == ' ')
-					continue;
 			}
-			
-			if(input == '\n')
-				continue;
 			if(y_pos == 5) {
 				if(page_num == 0) {
 					page_num = 1;
@@ -673,19 +667,20 @@ void exercise_long(void) {
 					break;
 			}
 
-			input_buf[y_pos][x_pos++] = input;
-			input_buf[y_pos][x_pos] = 0;
-
-			accuracy = cal_accuracy_for_long(input_buf, &article[no], page_num, x_pos, y_pos);
-			speed = cal_speed_for_long(input_buf, &article[no], page_num, x_pos, y_pos, &start, &end);
+			if(input != '\n') {
+				input_buf[page_num][y_pos][x_pos++] = input;
+				input_buf[page_num][y_pos][x_pos] = 0;
+				accuracy = cal_accuracy_for_long(input_buf, &article[no], page_num, x_pos, y_pos);
+				speed = cal_speed_for_long(input_buf, &article[no], page_num, x_pos, y_pos, &start, &end);
+			}
 		}
 	}
 	start_msg(4);
 	move_cursor(0, 2);
 	printf("정확도 : %3d%%\t현재타수 : %3d\n", accuracy, speed);
 	move_cursor(0, 5);
-	printf("종료하려면 esc를 누르세요.");
-	move_cursor(0, offset);
+	printf("종료하려면 ESC를 누르세요.");
+	move_cursor(0, 12);
 
 	while(getch() != ESC);
 }

@@ -373,6 +373,8 @@ void exercise_short(void) {
 				}
 				idx--;
 				accuracy = cal_accuracy_for_short(input_buf, sentence[no], idx);
+				current_speed = cal_speed_for_short(input_buf, sentence[no], idx, &start, &end);
+				max_speed = max_speed < current_speed ? current_speed : max_speed;
 			}
 			else if(input == '\n') {
 				progress += 20;
